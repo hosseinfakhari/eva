@@ -1,6 +1,7 @@
 class Environment {
-    constructor(record = {}) {
+    constructor(record = {}, parent = null) {
         this.record = record;
+        this.parent = parent;
     }
 
     // create variable name with given name and value
@@ -9,11 +10,22 @@ class Environment {
         return value;
     }
 
+    assign(name, value) {
+        return this.resolve(name).record[name] = value;
+    }
+
     lookup(name) {
-        if (!this.record.hasOwnProperty(name)) {
+        return this.resolve(name).record[name];
+    }
+
+    resolve(name) {
+        if (this.record.hasOwnProperty(name)) {
+            return this;
+        }
+        if (this.parent == null) {
             throw new ReferenceError(`Variable "${name}" is not defined. `)
         }
-        return this.record[name];
+        return this.parent.resolve(name);
     }
 }
 
